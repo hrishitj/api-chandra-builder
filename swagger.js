@@ -14,12 +14,12 @@ export const swaggerConfig = (app) => {
           url: `http://localhost:${process.env.PORT || 5006}`,
           description: "Development server",
         },
+        // {
+        //   url: `https://94.136.184.238:${process.env.PORT || 5006}`,
+        //   description: "Test server",
+        // },
         {
-          url: `https://94.136.184.238:${process.env.PORT || 5006}`,
-          description: "Test server",
-        },
-        {
-          url: `https://chandrajewellery.api.ls2.kenmarkserver.com`, 
+          url: `https://api.chandrajewellery.kenmarkserver.com `, 
           description: "Staging server",
         },
       ],
