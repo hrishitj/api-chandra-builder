@@ -16,6 +16,8 @@ costingController.fetchCosting = async (req, res) => {
     let ratexweight = 0;
     let diamondscost = 0;
     let dimensions = [];
+    let noOfDiamonds = 0;
+    let caratWeight = 0;
 
     let {
       quantity,
@@ -46,34 +48,23 @@ costingController.fetchCosting = async (req, res) => {
       },
     });
 
-    let diamondQualityId = await allModels.diamondQualityModel.findOne({
-      where: {
-        diamondQuality: DiamondQuality,
-      },
-    });
+    // let diamondQualityId = await allModels.diamondQualityModel.findOne({
+    //   where: {
+    //     diamondQuality: DiamondQuality,
+    //   },
+    // });
 
-    let metalColorId = await allModels.metalColorModel.findOne({
-      where: {
-        metalColor: metalColor || "Gold",
-      },
-    });
+    // let metalColorId = await allModels.metalColorModel.findOne({
+    //   where: {
+    //     metalColor: metalColor || "Gold",
+    //   },
+    // });
 
-    let chainTypeId = await allModels.chainTypeModel.findOne({
-      where: {
-        chainType: chainType || "Cat 30 Cable Chain with Lobster Lock",
-      },
-    });
-
-    const newCostingForm = await allModels.costingModel.create({
-      quantity: quantity,
-      metalKaratId: metalKaratId.id,
-      metalColorId: metalColorId.id,
-      diamondQualityId: diamondQualityId.id,
-      fontStyleId: fontStyleId.id,
-      letterHeightId: letterHeightId.id,
-      chainTypeId: chainTypeId.id,
-      customName: customName,
-    });
+    // let chainTypeId = await allModels.chainTypeModel.findOne({
+    //   where: {
+    //     chainType: chainType || "Cat 30 Cable Chain with Lobster Lock",
+    //   },
+    // });
 
     //for now as the small character are not present
     customName = customName.toUpperCase();
@@ -139,6 +130,8 @@ costingController.fetchCosting = async (req, res) => {
         price += ratexweight + diamondscost;
         let dim = charCostQuote.dimensions.match(/[\d.]+/g);
         dimensions.push(dim);
+        noOfDiamonds += parseInt(charCostQuote.noOfDiamonds);
+        caratWeight += parseFloat(charCostQuote.diamondCarat);
 
         /* 
                 SOURCE SANS PRO FONT - Regular
@@ -152,7 +145,7 @@ costingController.fetchCosting = async (req, res) => {
 
         // for staging server
         let path = ""; // http://192.168.53.224:5014/
-        let url = "https://chandrajewellery.api.ls2.kenmarkserver.com";
+        let url = "https://api.chandrajewellery.kenmarkserver.com";
 
         if (fontStyle === "Regular") {
           path += "JMT-SOURCE SANS PRO FONT";
@@ -243,7 +236,7 @@ costingController.fetchCosting = async (req, res) => {
 
     price = price * quantity;
     price = parseFloat(price.toFixed(2));
-    return res.status(200).json({ price, paths, chainImages, braceletImages, length, width, height, deliveryTime });
+    return res.status(200).json({ price, paths, chainImages, braceletImages, length, width, height, deliveryTime, noOfDiamonds, caratWeight });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
