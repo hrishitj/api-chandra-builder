@@ -159,7 +159,14 @@ costingController.fetchCosting = async (req, res) => {
           path += "(0.30 INCH) DONE/";
         }
 
-        let images = await readAllFiles(`assets/${path}/${char}/`);
+        let images;
+        if(char === '.') {
+          images = await readAllFiles(`assets/${path}/DOT/`);
+        }
+        else {
+          images = await readAllFiles(`assets/${path}/${char}/`);
+        }
+
         // console.log(images);
         // path += char + "/" + char + " ";
         path += char + "/";
