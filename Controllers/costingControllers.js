@@ -167,9 +167,8 @@ costingController.fetchCosting = async (req, res) => {
           images = await readAllFiles(`assets/${path}/${char}/`);
         }
 
-        // console.log(images);
         // path += char + "/" + char + " ";
-        path += char + "/";
+        path += (char === '.'? "DOT" : char) + "/";
 
         if (metalColor === "Rose Gold") {
           images = images.filter((f) => f.includes("PG"));
