@@ -119,6 +119,15 @@ costingController.fetchCosting = async (req, res) => {
 
         ratexweight = rate * weight;
 
+        // add chain price
+        if (metalKarat === "18KT") {
+          ratexweight += 190;
+        } else if (metalKarat === "14KT") {
+          ratexweight += 170;
+        } else {
+          ratexweight += 150;
+        }
+
         if (DiamondQuality === "VS") {
           diamondscost = parseFloat(charCostQuote.diamondCarat) * 525;
         } else if (DiamondQuality === "SI") {
