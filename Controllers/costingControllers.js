@@ -10,10 +10,14 @@ costingController.fetchCosting = async (req, res) => {
     let chainImages = [];
     let braceletImages = [];
     let deliveryTime = 0;
-    let price = 0;
+    let price = {
+      necklacePrice: 0,
+      braceletPrice: 0,
+    };
     let weight = 0;
     let rate = 0;
-    let ratexweight = 0;
+    let ratexweightNecklace = 0;
+    let ratexweightBracelet = 0;
     let diamondscost = 0;
     let dimensions = [];
     let noOfDiamonds = 0;
@@ -117,15 +121,19 @@ costingController.fetchCosting = async (req, res) => {
           rate = parseFloat(((((2200 / 31.1035) * 10) / 24) * 1.1).toFixed(2));
         }
 
-        ratexweight = rate * weight;
+        ratexweightNecklace = rate * weight;
+        ratexweightBracelet = rate * weight;
 
         // add chain price
         if (metalKarat === "18KT") {
-          ratexweight += 190;
+          ratexweightNecklace += 190;
+          ratexweightBracelet += 80;
         } else if (metalKarat === "14KT") {
-          ratexweight += 170;
+          ratexweightNecklace += 170;
+          ratexweightBracelet += 71;
         } else {
-          ratexweight += 150;
+          ratexweightNecklace += 150;
+          ratexweightBracelet += 63;
         }
 
         if (DiamondQuality === "VS") {
@@ -136,7 +144,9 @@ costingController.fetchCosting = async (req, res) => {
           diamondscost = parseFloat(charCostQuote.diamondCarat) * 200;
         }
 
-        price += ratexweight + diamondscost;
+        price.necklacePrice += ratexweightNecklace + diamondscost;
+        price.braceletPrice += ratexweightBracelet + diamondscost;
+
         let dim = charCostQuote.dimensions.match(/[\d.]+/g);
         dimensions.push(dim);
         noOfDiamonds += parseInt(charCostQuote.noOfDiamonds);
@@ -176,12 +186,10 @@ costingController.fetchCosting = async (req, res) => {
           images = await readAllFiles(`assets/${path}/${char}/`);
         }
 
-        // path += char + "/" + char + " ";
         path += (char === '.'? "DOT" : char) + "/";
 
         if (metalColor === "Rose Gold") {
           images = images.filter((f) => f.includes("PG"));
-          // console.log(images);
 
           path += images[0]; // "PG"
 
@@ -249,8 +257,11 @@ costingController.fetchCosting = async (req, res) => {
     width = width.toFixed(2);
     height = height.toFixed(2);
 
-    price = price * quantity;
-    price = parseFloat(price.toFixed(2));
+    price.necklacePrice = price.necklacePrice * quantity;
+    price.braceletPrice = price.braceletPrice * quantity;
+    price.necklacePrice = parseFloat(price.necklacePrice.toFixed(2));
+    price.braceletPrice = parseFloat(price.braceletPrice.toFixed(2));
+
     return res.status(200).json({ price, paths, chainImages, braceletImages, length, width, height, deliveryTime, noOfDiamonds, caratWeight });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
