@@ -16,8 +16,7 @@ costingController.fetchCosting = async (req, res) => {
     };
     let weight = 0;
     let rate = 0;
-    let ratexweightNecklace = 0;
-    let ratexweightBracelet = 0;
+    let ratexweight = 0;
     let diamondscost = 0;
     let dimensions = [];
     let noOfDiamonds = 0;
@@ -121,20 +120,7 @@ costingController.fetchCosting = async (req, res) => {
           rate = parseFloat(((((2200 / 31.1035) * 10) / 24) * 1.1).toFixed(2));
         }
 
-        ratexweightNecklace = rate * weight;
-        ratexweightBracelet = rate * weight;
-
-        // add chain price
-        if (metalKarat === "18KT") {
-          ratexweightNecklace += 190;
-          ratexweightBracelet += 80;
-        } else if (metalKarat === "14KT") {
-          ratexweightNecklace += 170;
-          ratexweightBracelet += 71;
-        } else {
-          ratexweightNecklace += 150;
-          ratexweightBracelet += 63;
-        }
+        ratexweight = rate * weight;
 
         if (DiamondQuality === "VS") {
           diamondscost = parseFloat(charCostQuote.diamondCarat) * 525;
@@ -144,8 +130,8 @@ costingController.fetchCosting = async (req, res) => {
           diamondscost = parseFloat(charCostQuote.diamondCarat) * 200;
         }
 
-        price.necklacePrice += ratexweightNecklace + diamondscost;
-        price.braceletPrice += ratexweightBracelet + diamondscost;
+        price.necklacePrice += ratexweight + diamondscost;
+        price.braceletPrice += ratexweight + diamondscost;
 
         let dim = charCostQuote.dimensions.match(/[\d.]+/g);
         dimensions.push(dim);
@@ -256,6 +242,18 @@ costingController.fetchCosting = async (req, res) => {
     length = length.toFixed(2);
     width = width.toFixed(2);
     height = height.toFixed(2);
+
+    // add chain price
+    if (metalKarat === "18KT") {
+      price.necklacePrice += 190;
+      price.braceletPrice += 80;
+    } else if (metalKarat === "14KT") {
+      price.necklacePrice += 170;
+      price.braceletPrice += 71;
+    } else {
+      price.necklacePrice += 150;
+      price.braceletPrice += 63;
+    }
 
     price.necklacePrice = price.necklacePrice * quantity;
     price.braceletPrice = price.braceletPrice * quantity;
