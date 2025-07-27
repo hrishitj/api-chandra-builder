@@ -41,5 +41,6 @@ import fontStylesControllers from "../Controllers/fontStyleControllers.js"
  */
 
 router.get("/getfontStyle",fontStylesControllers.getFontStyle)
+router.get("/getfontStyleV2",fontStylesControllers.getFontStyleV2)
 
 export default router;

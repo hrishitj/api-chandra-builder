@@ -41,5 +41,6 @@ import metalColorControllers from "../Controllers/metalColorControllers.js";
  */
 
 router.get("/getmetalColor",metalColorControllers.getMetalColor)
+router.get("/getmetalColorV2",metalColorControllers.getMetalColorV2)
 
 export default router;

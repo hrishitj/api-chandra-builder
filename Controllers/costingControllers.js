@@ -1,6 +1,7 @@
 import allModels from "../Utils/allModels.js";
 import { Op } from "sequelize";
 import readAllFiles from "../Utils/readFiles.js";
+import { cacheAwareController } from '../Utils/cacheAwareController.js';
 
 const costingController = {};
 
@@ -188,7 +189,6 @@ costingController.fetchCosting = async (req, res) => {
           );
         } else if (metalColor === "Gold") {
           images = images.filter((f) => f.includes("YG"));
-          // console.log(images);
 
           path += images[0]; // "YG"
 
@@ -201,7 +201,6 @@ costingController.fetchCosting = async (req, res) => {
           );
         } else if (metalColor === "Platinum") {
           images = images.filter((f) => f.includes("WG"));
-          // console.log(images);
 
           path += images[0]; // "WG"
 
@@ -265,5 +264,231 @@ costingController.fetchCosting = async (req, res) => {
     return res.status(500).json({ success: false, error: error.message });
   }
 };
+
+costingController.fetchCostingV2 = async (req, res) => {
+  try {
+    let paths = [];
+    let chainImages = [];
+    let braceletImages = [];
+    let deliveryTime = 0;
+    let price = {
+      necklacePrice: 0,
+      braceletPrice: 0,
+    };
+    let weight = 0;
+    let dimensions = [];
+    let noOfDiamonds = 0;
+    let caratWeight = 0;
+
+    let {
+      quantity,
+      metalKaratId,
+      metalColorId,
+      diamondQualityId,
+      fontStyleId,
+      letterHeightId,
+      customName,
+    } = req.query;
+
+    customName = customName.toUpperCase().replace(/ /g, '');
+    let characterCostData;
+    let pricingBase;
+    let fontStyles;
+    let metalKarats;
+    let metalColors;
+    let letterHeights;
+
+    try {
+      characterCostData = await cacheAwareController('characterCosts', allModels.characterCostModelV2);
+    } catch (err) {
+      res.status(500).json({ error: err.message });
+    }
+
+    try {
+      pricingBase = await cacheAwareController('pricingBase', allModels.pricingBaseModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      fontStyles = await cacheAwareController('fontStyles', allModels.fontStyleModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      metalKarats = await cacheAwareController('metalKarats', allModels.metalKaratModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      metalColors = await cacheAwareController('metalColors', allModels.metalColorModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      letterHeights = await cacheAwareController('letterHeights', allModels.letterHeightModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    const metalKaratName = metalKarats.find(k => k.id == metalKaratId)?.name || "10K";
+    const fontStyleName = fontStyles.find(f => f.id == fontStyleId)?.name || "Regular";
+    const letterHeightName = letterHeights.find(l => l.id == letterHeightId)?.name || "Medium";
+    const metalColorName = metalColors.find(m => m.id == metalColorId)?.name || "Yellow Gold";
+
+    const metalRatePerGm = parseFloat(pricingBase.find(p => p.name === metalKaratName)?.value || 0);
+    const lossPercent = parseFloat(pricingBase.find(p => p.name === 'Loss')?.value || 0);
+    const labourCharge = parseFloat(pricingBase.find(p => p.name === 'Labour')?.value || 0);
+
+    for (let i = 0; i < customName.length; i++) {
+      let char = customName[i];
+
+      let charCostQuote = characterCostData.find(item =>
+        item.letter == char &&
+        item.metalKaratId == metalKaratId &&
+        item.fontStyleId == fontStyleId &&
+        item.letterHeightId == letterHeightId &&
+        item.diamondQualityId == diamondQualityId
+      );
+
+      if (charCostQuote) {
+        // METAL PRICE CALCULATION : Get 10K 14K 18K pricing and multiply by the weight, add the labour change
+        weight = parseFloat(charCostQuote.metalWeight);
+        const metalPrice = parseFloat((weight * ((metalRatePerGm * (1 + lossPercent)) + labourCharge)).toFixed(2));
+
+        price.necklacePrice += metalPrice;
+        price.braceletPrice += metalPrice;
+        // METAL PRICE CALCULATION : Add the gold price to necklace and bracelet prices
+        // price.necklacePrice += (goldPrice + parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Chain'))?.value) || 0);
+        // price.braceletPrice += (goldPrice + parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Bracelet'))?.value) || 0);
+
+        // DIAMOND PRICE CALCULATION
+        price.necklacePrice += parseFloat(parseFloat(charCostQuote.diamondPrice).toFixed(2));
+        price.braceletPrice += parseFloat(parseFloat(charCostQuote.diamondPrice).toFixed(2));
+
+        let dim = charCostQuote.dimensions.match(/[\d.]+/g);
+        dimensions.push(dim);
+        noOfDiamonds += parseInt(charCostQuote.noOfDiamonds);
+        caratWeight += parseFloat(charCostQuote.diamondCarat);
+
+        let path = ""; // http://192.168.53.224:5014/
+        let url = "https://api.chandrajewellery.kenmarkserver.com";
+        
+        if (fontStyleName === "Regular") {
+          path += "JMT-SOURCE SANS PRO FONT";
+        } else if (fontStyleName === "Sport") {
+          path += "JMT-COLLEGE FONT";
+        }
+
+        if (letterHeightName === "Large") {
+          path += "(0.35 INCH) DONE/";
+        } else if (letterHeightName === "Medium") {
+          path += "(0.30 INCH) DONE/";
+        }
+
+        let images;
+        if(char === '.') {
+          images = await readAllFiles(`assets/${path}/DOT/`);
+        }
+        else {
+          images = await readAllFiles(`assets/${path}/${char}/`);
+        }
+
+        path += (char === '.'? "DOT" : char) + "/";
+
+        if (metalColorName === "Rose Gold") {
+          images = images.filter((f) => f.includes("PG"));
+          path += images[0]; // "PG"
+
+          chainImages.push(
+            `${url}/CHAINS/Rose Gold Left.png`,
+            `${url}/CHAINS/Rose Gold Right.png`
+          );
+          braceletImages.push(
+            `${url}/BR/BR PG.png`,
+          );
+        }
+        else if (metalColorName === "Yellow Gold") {
+          images = images.filter((f) => f.includes("YG"));
+          path += images[0]; // "YG"
+
+          chainImages.push(
+            `${url}/CHAINS/Gold Left.png`,
+            `${url}/CHAINS/Gold Right.png`
+          );
+          braceletImages.push(
+            `${url}/BR/BR YG.png`,
+          );
+        } else if (metalColorName === "White Gold") {
+          images = images.filter((f) => f.includes("WG"));
+          path += images[0]; // "WG"
+
+          chainImages.push(
+            `${url}/CHAINS/Silver Left.png`,
+            `${url}/CHAINS/Silver Right.png`
+          );
+          braceletImages.push(
+            `${url}/BR/BR WG.png`,
+          );
+        }
+        paths.push(
+          `${url}/${path}`
+        );
+      }
+    }
+    chainImages = chainImages.slice(0, 2);
+    braceletImages = braceletImages.slice(0, 2);
+
+    let length = 0;
+    let width = 0;
+    let height = 0;
+
+    for (let i = 0; i < dimensions.length; i++) {
+      length += parseFloat(dimensions[i][0]);
+      width += parseFloat(dimensions[i][1]);
+      height += parseFloat(dimensions[i][2]);
+    }
+    length = length.toFixed(2);
+    width = width.toFixed(2);
+    height = height.toFixed(2);
+
+  // ADD CHAIN AND BRACELET PRICES BASED ON METAL KARAT
+    price.necklacePrice += parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Chain'))?.value) || 0;
+    price.braceletPrice += parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Bracelet'))?.value) || 0;
+
+    // MULTIPLY PRICES BY QUANTITY
+    price.necklacePrice = price.necklacePrice * quantity;
+    price.braceletPrice = price.braceletPrice * quantity;
+
+    // ADD CAD AND MARKETING CHARGES
+    price.necklacePrice += parseFloat(pricingBase.find(p => p.name === 'CAD')?.value || 0);
+    price.braceletPrice += parseFloat(pricingBase.find(p => p.name === 'CAD')?.value || 0);
+    price.necklacePrice += parseFloat(pricingBase.find(p => p.name === 'Marketing')?.value || 0);
+    price.braceletPrice += parseFloat(pricingBase.find(p => p.name === 'Marketing')?.value || 0);
+
+    // ROUND PRICES TO 2 DECIMAL PLACES
+    price.necklacePrice = parseFloat(price.necklacePrice.toFixed(2));
+    price.braceletPrice = parseFloat(price.braceletPrice.toFixed(2));
+    return res.status(200).json({ 
+      price, 
+      paths, 
+      chainImages, 
+      braceletImages, 
+      length, 
+      width, 
+      height, 
+      deliveryTime, 
+      noOfDiamonds, 
+      caratWeight 
+    });
+
+  } catch (error) {
+    console.error("Error in fetchCostingV2:", error);
+    return res.status(500).json({ success: false, error: error.message });
+  }
+}
 
 export default costingController;

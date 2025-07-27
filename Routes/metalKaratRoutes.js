@@ -40,6 +40,7 @@ import metalKaratsControllers from "../Controllers/metalKaratControllers.js";
  *         description: Server error
  */
 
-router.get("/getmetalKarat",metalKaratsControllers.getMetalKarat)
+router.get("/getmetalKarat",metalKaratsControllers.getMetalKarat);
+router.get("/getMetalKaratV2", metalKaratsControllers.getMetalKaratV2);
 
 export default router;

@@ -41,5 +41,6 @@ import diamondQualityController from "../Controllers/diamondQualityControllers.j
  */
 
 router.get("/getdiamondQuality",diamondQualityController.getDiamondQuality)
+router.get("/getdiamondQualityV2",diamondQualityController.getDiamondQualityV2)
 
 export default router;

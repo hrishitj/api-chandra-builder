@@ -14,7 +14,9 @@ import { swaggerConfig }  from "./swagger.js";
 import relations from "./Utils/allModelRelations.js";
 import dbConnection  from "./Utils/dbConnection.js";
 import routes from "./Utils/allRoutes.js";
-import uploadImage from './cron/images.js';
+
+import { preloadMasterData } from "./Services/cacheService.js";
+// import { resolveExcelData } from "./Services/excelResolver.js";
 
 const __dirname = path.resolve();
 
@@ -43,8 +45,12 @@ app.get('/', (req, res) => {
     return res.send(RESPONSE);
 });
 
-dbConnection.sync().then(() => {
+dbConnection.sync().then(async () => {
     console.log("Database connected successfully");
+    await preloadMasterData();
+
+    // To upload pricing
+    // await resolveExcelData(); 
 });
 
 app.listen(process.env.PORT, () => {

@@ -41,5 +41,6 @@ import letterHeightsControllers from "../Controllers/letterHeightControllers.js"
  */
 
 router.get("/getletterHeight",letterHeightsControllers.getLetterHeight)
+router.get("/getletterHeightV2",letterHeightsControllers.getLetterHeightV2)
 
 export default router;

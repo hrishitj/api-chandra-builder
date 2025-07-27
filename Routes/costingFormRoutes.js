@@ -224,4 +224,17 @@ router.get(
   costingControllers.fetchCosting
 );
 
+router.get(
+  "/costingV2",
+  [
+    query("quantity").not().isEmpty().withMessage("Quantity is required"),
+    query("metalKaratId").not().isEmpty().withMessage("Metal Karat is required"),
+    query("diamondQualityId").not().isEmpty().withMessage("Diamond Quality is required"),
+    query("fontStyleId").not().isEmpty().withMessage("Font Style is required"),
+    query("letterHeightId").not().isEmpty().withMessage("Letter Height is required"),
+    query("customName").not().isEmpty().withMessage("Name or Date is required"),
+  ],
+  costingControllers.fetchCostingV2
+);
+
 export default router;
