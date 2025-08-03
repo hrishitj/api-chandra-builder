@@ -1,9 +1,9 @@
-import xlsx from "xlsx";
+// import xlsx from "xlsx";
 import characterCostingV2 from "../ModelsV2/characterCosts.js";
 import { getMasterData } from "./cacheService.js";
 
 export async function resolveExcelData() {
-    const workbook = xlsx.readFile("assets/PricingExcels/NameBuilderPrices-regular-medium-combined.xlsx");
+    const workbook = xlsx.readFile("assets/PricingExcels/NameBuilderPrices-sport-large-combined.xlsx");
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rows = xlsx.utils.sheet_to_json(sheet);
 

@@ -342,6 +342,11 @@ costingController.fetchCostingV2 = async (req, res) => {
     const metalRatePerGm = parseFloat(pricingBase.find(p => p.name === metalKaratName)?.value || 0);
     const lossPercent = parseFloat(pricingBase.find(p => p.name === 'Loss')?.value || 0);
     const labourCharge = parseFloat(pricingBase.find(p => p.name === 'Labour')?.value || 0);
+    const duties = parseFloat(pricingBase.find(p => p.name === 'Duties')?.value || 0);
+    const marketingCharge = parseFloat(pricingBase.find(p => p.name === 'Marketing')?.value || 0);
+    const cadCharge = parseFloat(pricingBase.find(p => p.name === 'CAD')?.value || 0);
+    const chainPrice = parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Chain'))?.value) || 0;
+    const braceletPrice = parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Bracelet'))?.value) || 0;
 
     for (let i = 0; i < customName.length; i++) {
       let char = customName[i];
@@ -358,12 +363,8 @@ costingController.fetchCostingV2 = async (req, res) => {
         // METAL PRICE CALCULATION : Get 10K 14K 18K pricing and multiply by the weight, add the labour change
         weight = parseFloat(charCostQuote.metalWeight);
         const metalPrice = parseFloat((weight * ((metalRatePerGm * (1 + lossPercent)) + labourCharge)).toFixed(2));
-
         price.necklacePrice += metalPrice;
         price.braceletPrice += metalPrice;
-        // METAL PRICE CALCULATION : Add the gold price to necklace and bracelet prices
-        // price.necklacePrice += (goldPrice + parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Chain'))?.value) || 0);
-        // price.braceletPrice += (goldPrice + parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Bracelet'))?.value) || 0);
 
         // DIAMOND PRICE CALCULATION
         price.necklacePrice += parseFloat(parseFloat(charCostQuote.diamondPrice).toFixed(2));
@@ -456,22 +457,27 @@ costingController.fetchCostingV2 = async (req, res) => {
     height = height.toFixed(2);
 
   // ADD CHAIN AND BRACELET PRICES BASED ON METAL KARAT
-    price.necklacePrice += parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Chain'))?.value) || 0;
-    price.braceletPrice += parseInt(pricingBase.find(p => p.name === (metalKaratName + ' Bracelet'))?.value) || 0;
+    price.necklacePrice += chainPrice;
+    price.braceletPrice += braceletPrice;
 
     // MULTIPLY PRICES BY QUANTITY
     price.necklacePrice = price.necklacePrice * quantity;
     price.braceletPrice = price.braceletPrice * quantity;
 
+    // ADD DUTIES
+    price.necklacePrice = price.necklacePrice * (1 + (duties/100));
+    price.braceletPrice = price.braceletPrice * (1 + (duties/100));
+
     // ADD CAD AND MARKETING CHARGES
-    price.necklacePrice += parseFloat(pricingBase.find(p => p.name === 'CAD')?.value || 0);
-    price.braceletPrice += parseFloat(pricingBase.find(p => p.name === 'CAD')?.value || 0);
-    price.necklacePrice += parseFloat(pricingBase.find(p => p.name === 'Marketing')?.value || 0);
-    price.braceletPrice += parseFloat(pricingBase.find(p => p.name === 'Marketing')?.value || 0);
+    price.necklacePrice += cadCharge;
+    price.braceletPrice += cadCharge;
+    price.necklacePrice += marketingCharge;
+    price.braceletPrice += marketingCharge;
 
     // ROUND PRICES TO 2 DECIMAL PLACES
     price.necklacePrice = parseFloat(price.necklacePrice.toFixed(2));
     price.braceletPrice = parseFloat(price.braceletPrice.toFixed(2));
+    
     return res.status(200).json({ 
       price, 
       paths, 
