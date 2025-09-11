@@ -376,7 +376,7 @@ costingController.fetchCostingV2 = async (req, res) => {
         caratWeight += parseFloat(charCostQuote.diamondCarat);
 
         let path = ""; // http://192.168.53.224:5014/
-        let url = "https://api.chandrajewellery.kenmarkserver.com";
+        let url = "https://api.mynamebuilder.com";
         
         if (fontStyleName === "Regular") {
           path += "JMT-SOURCE SANS PRO FONT";
