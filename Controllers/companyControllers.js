@@ -15,7 +15,7 @@ companyController.createCompany = async (req, res) => {
 // GET: Retrieve all companies
 companyController.getAllCompanies = async (req, res) => {
   try {
-    const companies = await allModels.companyModelV2.find();
+    const companies = await allModels.companyModelV2.findAll();
     res.status(200).json(companies);
   } catch (error) {
     res.status(500).json({ error: error.message });
