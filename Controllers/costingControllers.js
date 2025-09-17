@@ -338,10 +338,8 @@ costingController.fetchCostingV2 = async (req, res) => {
 
     try {
       const company = await allModels.companyModelV2.findOne({ where: { id: companyId } });
-      console.log("Company:", company);
       if (company && company.multiplier && !isNaN(company.multiplier)) {
         multiplier = parseFloat(company.multiplier);
-        console.log("Using company-specific multiplier:", multiplier);
       }
     } catch (err) {
       return res.status(500).json({ error: err.message });
