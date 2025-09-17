@@ -224,6 +224,74 @@ router.get(
   costingControllers.fetchCosting
 );
 
+
+/**
+ * @openapi
+ * /costingV2:
+ *   get:
+ *     summary: Calculate costing (V2) based on query parameters.
+ *     description: Calculate costing for custom jewelry using V2 parameters.
+ *     tags:
+ *       - Costing
+ *     parameters:
+ *       - in: query
+ *         name: quantity
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The quantity of custom jewelry.
+ *       - in: query
+ *         name: metalKaratId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The metal karat ID.
+ *       - in: query
+ *         name: diamondQualityId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The diamond quality ID.
+ *       - in: query
+ *         name: fontStyleId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The font style ID.
+ *       - in: query
+ *         name: letterHeightId
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The letter height ID.
+ *       - in: query
+ *         name: customName
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: The custom name for jewelry.
+ *     responses:
+ *       200:
+ *         description: Costing calculation successful (V2).
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 price:
+ *                   type: number
+ *                 paths:
+ *                   type: array
+ *                   items:
+ *                     type: string
+ *                 deliveryTime:
+ *                   type: number
+ *       400:
+ *         description: Invalid request parameters.
+ *       500:
+ *         description: Internal server error.
+ */
+
 router.get(
   "/costingV2",
   [

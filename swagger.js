@@ -19,7 +19,7 @@ export const swaggerConfig = (app) => {
         //   description: "Test server",
         // },
         {
-          url: `https://api.chandrajewellery.kenmarkserver.com `, 
+          url: `https://api.mynamebuilder.com`, 
           description: "Staging server",
         },
       ],

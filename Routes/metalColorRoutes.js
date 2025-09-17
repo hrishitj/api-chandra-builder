@@ -41,6 +41,26 @@ import metalColorControllers from "../Controllers/metalColorControllers.js";
  */
 
 router.get("/getmetalColor",metalColorControllers.getMetalColor)
+
+/**
+ * @openapi
+ * /getMetalColorV2:
+ *   get:
+ *     summary: Retrieve a list of metal colors
+ *     tags:
+ *       - MetalColors
+ *     responses:
+ *       200:
+ *         description: A list of metal colors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/MetalColor'
+ *       500:
+ *         description: Server error
+ */
 router.get("/getmetalColorV2",metalColorControllers.getMetalColorV2)
 
 export default router;

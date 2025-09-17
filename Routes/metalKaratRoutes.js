@@ -41,6 +41,26 @@ import metalKaratsControllers from "../Controllers/metalKaratControllers.js";
  */
 
 router.get("/getmetalKarat",metalKaratsControllers.getMetalKarat);
+
+/**
+ * @openapi
+ * /getMetalKaratV2:
+ *   get:
+ *     summary: Retrieve a list of metal karats
+ *     tags:
+ *       - MetalKarats
+ *     responses:
+ *       200:
+ *         description: A list of metal karats
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/MetalKarat'
+ *       500:
+ *         description: Server error
+ */
 router.get("/getMetalKaratV2", metalKaratsControllers.getMetalKaratV2);
 
 export default router;

@@ -16,6 +16,7 @@ import diamondQualityModelV2 from "../ModelsV2/diamondQualitites.js";
 import metalKaratModelV2 from "../ModelsV2/metalKarats.js";
 import characterCostModelV2 from "../ModelsV2/characterCosts.js";
 import pricingBaseModelV2 from "../ModelsV2/pricingBase.js";
+import companyModelV2 from "../ModelsV2/company.js";
 
 const Models = {
     costingModel,
@@ -35,7 +36,8 @@ const Models = {
     diamondQualityModelV2,
     metalKaratModelV2,
     characterCostModelV2,
-    pricingBaseModelV2
+    pricingBaseModelV2,
+    companyModelV2
     
 }
 

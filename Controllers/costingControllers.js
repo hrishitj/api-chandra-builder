@@ -288,6 +288,7 @@ costingController.fetchCostingV2 = async (req, res) => {
       fontStyleId,
       letterHeightId,
       customName,
+      companyId
     } = req.query;
 
     customName = customName.toUpperCase().replace(/ /g, '');
@@ -297,6 +298,7 @@ costingController.fetchCostingV2 = async (req, res) => {
     let metalKarats;
     let metalColors;
     let letterHeights;
+    let multiplier = 1;
 
     try {
       characterCostData = await cacheAwareController('characterCosts', allModels.characterCostModelV2);
@@ -330,6 +332,17 @@ costingController.fetchCostingV2 = async (req, res) => {
 
     try {
       letterHeights = await cacheAwareController('letterHeights', allModels.letterHeightModelV2);
+    } catch (err) {
+      return res.status(500).json({ error: err.message });
+    }
+
+    try {
+      const company = await allModels.companyModelV2.findOne({ where: { id: companyId } });
+      console.log("Company:", company);
+      if (company && company.multiplier && !isNaN(company.multiplier)) {
+        multiplier = parseFloat(company.multiplier);
+        console.log("Using company-specific multiplier:", multiplier);
+      }
     } catch (err) {
       return res.status(500).json({ error: err.message });
     }
@@ -473,6 +486,10 @@ costingController.fetchCostingV2 = async (req, res) => {
     price.braceletPrice += cadCharge;
     price.necklacePrice += marketingCharge;
     price.braceletPrice += marketingCharge;
+
+    // APPLY COMPANY SPECIFIC MULTIPLIER
+    price.necklacePrice = price.necklacePrice * multiplier;
+    price.braceletPrice = price.braceletPrice * multiplier;
 
     // ROUND PRICES TO 2 DECIMAL PLACES
     price.necklacePrice = parseFloat(price.necklacePrice.toFixed(2));

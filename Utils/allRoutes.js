@@ -5,6 +5,7 @@ import fontStyleRoute from "../Routes/fontStyleRoutes.js";
 import letterHeightRoute from "../Routes/letterHeightRoutes.js";
 import metalColorRoute from "../Routes/metalColorRoutes.js";
 import metalKaratRoute from "../Routes/metalKaratRoutes.js";
+import companyRoute from "../Routes/companyRoutes.js";
 import images from "../Routes/images.js";
 
 const ALL_ROUTES = (app) => {
@@ -17,6 +18,7 @@ const ALL_ROUTES = (app) => {
         metalColorRoute,        
         metalKaratRoute,
         images,
+        companyRoute
     )
 };
 
